@@ -1,0 +1,55 @@
+/**
+ * Sky theme for reveal.js.
+ *
+ * Copyright (C) 2011-2012 Hakim El Hattab, http://hakim.se
+ */
+
+
+// Default mixins and settings -----------------
+@import "../template/mixins";
+@import "../template/settings";
+// ---------------------------------------------
+
+
+
+// Include theme-specific fonts
+@import "../fonts.css";
+
+
+
+// Override theme settings (see ../template/settings.scss)
+$mainFont: 'Gotham SSm A', sans-serif;
+$mainColor: #435363;
+$headingFont: 'Gotham SSm A', sans-serif;
+$headingColor: #F18A20;
+$headingLetterSpacing: -0.08em;
+$headingTextShadow: none;
+$backgroundColor: #FFFFFF;
+$linkColor: #7C858C;
+$linkColorHover: lighten( $linkColor, 20% );
+$selectionBackgroundColor: #134674;
+
+// Fix links so they are not cut off
+.reveal a:not(.image) {
+	line-height: 1.3em;
+}
+
+// Background generator
+body:before {
+  position: absolute;
+  content: "";
+  display: block;
+  background: url('../../images/pic-chef-logo.svg') left top no-repeat;
+  width: 120px;
+  bottom: 30px;
+  left: 20px;
+  background-size: 120px 120px;
+  z-index: 9999;
+}
+
+
+
+
+// Theme template ------------------------------
+@import "../template/theme";
+// ---------------------------------------------

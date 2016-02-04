@@ -1,39 +1,63 @@
 /**
- * Sky theme for reveal.js.
- *
- * Copyright (C) 2011-2012 Hakim El Hattab, http://hakim.se
+ * Chef theme for reveal.js.
+ * Author: Michael Goetz
  */
-@import url(../fonts.css);
-.reveal a:not(.image) {
-  line-height: 1.3em; }
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700,400italic,700italic);
+/**
+ * Chef colors by Michael Goetz
+ */
+html * {
+  color-profile: sRGB;
+  rendering-intent: auto; }
 
-body:before {
-  position: absolute;
-  content: "";
-  display: block;
-  background: url("../../images/pic-chef-logo.svg") left top no-repeat;
-  width: 120px;
-  bottom: 30px;
-  left: 20px;
-  background-size: 120px 120px;
-  z-index: 9999; }
+.reveal img.unstyled {
+  background: none;
+  border: none;
+  box-shadow: none; }
+
+.reveal small.middle * {
+  vertical-align: middle; }
+
+.blue {
+  color: #53C6E2; }
+
+.green {
+  color: #71C5AF; }
+
+.yellow {
+  color: #FDB714; }
+
+.gold {
+  color: #F18B21; }
+
+.dgray {
+  color: #435464; }
+
+.gray {
+  color: #7D868C; }
+
+.black {
+  color: #000000; }
 
 /*********************************************
  * GLOBAL STYLES
  *********************************************/
 body {
-  background: #FFFFFF;
-  background-color: #FFFFFF; }
+  background-image: url("../../images/chef_logo.png");
+  background-size: 5%;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  background-color: #7d868c; }
 
 .reveal {
-  font-family: "Gotham SSm A", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 36px;
   font-weight: normal;
-  color: #435363; }
+  color: #ffffff; }
 
 ::selection {
   color: #fff;
-  background: #134674;
+  background: #d33682;
   text-shadow: none; }
 
 .reveal .slides > section,
@@ -51,11 +75,11 @@ body {
 .reveal h5,
 .reveal h6 {
   margin: 0 0 20px 0;
-  color: #F18A20;
-  font-family: "Gotham SSm A", sans-serif;
+  color: #3f5364;
+  font-family: "Montserrat", Impact, sans-serif;
   font-weight: normal;
   line-height: 1.2;
-  letter-spacing: -0.08em;
+  letter-spacing: normal;
   text-transform: uppercase;
   text-shadow: none;
   word-wrap: break-word; }
@@ -215,20 +239,20 @@ body {
  * LINKS
  *********************************************/
 .reveal a {
-  color: #7C858C;
+  color: #f18b21;
   text-decoration: none;
   -webkit-transition: color .15s ease;
   -moz-transition: color .15s ease;
   transition: color .15s ease; }
 
 .reveal a:hover {
-  color: #b2b8bc;
+  color: #f7bd81;
   text-shadow: none;
   border: none; }
 
 .reveal .roll span:after {
   color: #fff;
-  background: #585f64; }
+  background: #ba640c; }
 
 /*********************************************
  * IMAGES
@@ -236,7 +260,7 @@ body {
 .reveal section img {
   margin: 15px 0px;
   background: rgba(255, 255, 255, 0.12);
-  border: 4px solid #435363;
+  border: 4px solid #ffffff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); }
 
 .reveal section img.plain {
@@ -250,7 +274,7 @@ body {
 
 .reveal a:hover img {
   background: rgba(255, 255, 255, 0.2);
-  border-color: #7C858C;
+  border-color: #f18b21;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.55); }
 
 /*********************************************
@@ -258,31 +282,31 @@ body {
  *********************************************/
 .reveal .controls .navigate-left,
 .reveal .controls .navigate-left.enabled {
-  border-right-color: #7C858C; }
+  border-right-color: #f18b21; }
 
 .reveal .controls .navigate-right,
 .reveal .controls .navigate-right.enabled {
-  border-left-color: #7C858C; }
+  border-left-color: #f18b21; }
 
 .reveal .controls .navigate-up,
 .reveal .controls .navigate-up.enabled {
-  border-bottom-color: #7C858C; }
+  border-bottom-color: #f18b21; }
 
 .reveal .controls .navigate-down,
 .reveal .controls .navigate-down.enabled {
-  border-top-color: #7C858C; }
+  border-top-color: #f18b21; }
 
 .reveal .controls .navigate-left.enabled:hover {
-  border-right-color: #b2b8bc; }
+  border-right-color: #f7bd81; }
 
 .reveal .controls .navigate-right.enabled:hover {
-  border-left-color: #b2b8bc; }
+  border-left-color: #f7bd81; }
 
 .reveal .controls .navigate-up.enabled:hover {
-  border-bottom-color: #b2b8bc; }
+  border-bottom-color: #f7bd81; }
 
 .reveal .controls .navigate-down.enabled:hover {
-  border-top-color: #b2b8bc; }
+  border-top-color: #f7bd81; }
 
 /*********************************************
  * PROGRESS BAR
@@ -291,7 +315,7 @@ body {
   background: rgba(0, 0, 0, 0.2); }
 
 .reveal .progress span {
-  background: #7C858C;
+  background: #f18b21;
   -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
   -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
   transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985); }

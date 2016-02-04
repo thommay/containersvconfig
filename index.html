@@ -103,7 +103,7 @@
         </section>
 
         <section>
-          <h2>How do we find our data store?</h2>
+          <h2>How does our app find our data store?</h2>
           <p>With a hard coded file?</p>
           <pre><code class="yaml" data-trim contenteditable>
 development:
@@ -119,7 +119,7 @@ production:
         </section>
 
         <section>
-          <h2>How do we connect to our data store?</h2>
+          <h2>How does it connect to our data store?</h2>
           <p>With a hard coded file that contains secrets?</p>
           <pre><code class="yaml" data-trim contenteditable>
 development:
@@ -164,7 +164,7 @@ spec:
 
         <section>
           <h2>All of this stuff looks</h2>
-          <h2> a lot like config</h2>
+          <h2>a lot like config</h2>
         </section>
 
         <section>
@@ -202,11 +202,13 @@ end
         <section>
           <p>Chef is data driven</p>
           <pre><code class="ruby" data-trim contenteditable>
-java_version = Net::HTTP.get "https://config/versions/java"
+applications = JSON.parse(Net::HTTP.get("https://config/applications"))
 
-package "sun-jdk" do
-  action :install
-  version java_version
+applications.each do |name, settings|
+  my_app name do
+    version settings["version"]
+    turbo :on
+  end
 end
           </code></pre>
           <aside class="notes">
@@ -262,11 +264,52 @@ end
           </code></pre>
           <aside class="notes">
             This is just a section, but it's great because we're composing resources - our k8s resource is built from docker resources, and etcd resources, and so on.
+            Let's take a look at a complete chef resource.
           </aside>
         </section>
-			</div>
 
-		</div>
+        <section>
+          <p>Discovering services</p>
+          <pre><code class="hljs" data-trim contenteditable>
+db_ip = search(:node, "role:db_server AND chef_environment:production", {ip: [:ipaddress]})
+
+kubernetes_service "master database" do
+  ip db_ip
+  port 5432
+end
+          </code></pre>
+          <aside class="notes">
+            I've elided a bit of code, but essentially we're able to ask our chef server where the database is running, and then configure k8s so that applications running inside k8s can just connect to a well defined port and have done with it.
+          </aside>
+        </section>
+        <section>
+          <p>Secrets</p>
+          <pre><code class="hljs" data-trim contenteditable>
+vault = chef_vault_item(:credentials, "our_app_user")
+
+kubernetes_secret "our_app_user" do
+  data({username: "our_app_user", password: vault["password"]})
+end
+          </code></pre>
+          <aside class="notes">
+            Our DBA can create a Chef Vault item that's encrypted to just the DB master and the Kubernetes master. The DB master can create the user with the correct password, and then the k8s master can create a secret that applications can load.
+          </aside>
+        </section>
+        <section>
+          <p>Deployments</p>
+          <pre><code class="hljs" data-trim contenteditable>
+kubernetes_replication_controller "our_app" do
+  image "gcr.io/google_containers/update-demo"
+  version "kitten"
+  ports [80]
+end
+          </code></pre>
+          <aside class="notes">
+This is the same as the YAML we showed earlier. We can make this data driven by loading from a web service, or having our CI pipeline update the chef server with a new version.
+          </aside>
+        </section>
+      </div>
+    </div>
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.js"></script>

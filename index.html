@@ -98,7 +98,7 @@
 
         <section data-background="images/kub-node-1.png">
           <aside class="notes">
-            I got bored of this, but there are still a few more pages to go until we have a running kubernetes cluster.
+            I got bored of this, but there are still a few more pages to go until we have a running kubernetes cluster. Bear in mind this is a demo deployment; we're not doing any of the HA work we'd want in production.
           </aside>
         </section>
 
@@ -114,7 +114,6 @@ production:
 
           <aside class="notes">
             I think we've probably all been here. And we've probably all done emergency releases when we need to put a database behind a load balancer on a different subnet...
-            And then you get audited and the entire world falls down.
           </aside>
         </section>
 
@@ -163,77 +162,13 @@ spec:
         </section>
 
         <section>
-          <h2>All of this stuff looks</h2>
-          <h2>a lot like config</h2>
-        </section>
-
-        <section>
-          <h2>We're managing it.</h2>
-        </section>
-
-        <section>
-          <h2>Oh.</h2>
-        </section>
-
-        <section>
           <p>Configuration Management isn't just writing stuff to disk</p>
         </section>
 
         <section>
-          <h1>Chef</h1>
+          <p>Configuration of our systems</p>
         </section>
 
-        <section>
-          <p>Some quick sample code</p>
-          <pre><code class="ruby" data-trim contenteditable>
-package "sun-jdk" do
-  action :install
-  # node is populated at start up from information about the node,
-  # stored either locally or on a chef server
-  version node["java"]["version"]
-end
-          </code></pre>
-          <aside class="notes">
-            I know I just said config management isn't just about writing stuff to disk. But stick with me here.
-          </aside>
-
-        </section>
-
-        <section>
-          <p>Chef is data driven</p>
-          <pre><code class="ruby" data-trim contenteditable>
-applications = JSON.parse(Net::HTTP.get("https://config/applications"))
-
-applications.each do |name, settings|
-  my_app name do
-    version settings["version"]
-    turbo :on
-  end
-end
-          </code></pre>
-          <aside class="notes">
-            In this case, we're getting from a hypothetical web service that just spits out version numbers. But the sky's the limit.
-          </aside>
-        </section>
-
-        <section>
-          <p>It's easy to extend</p><p>It's easy to ensure that actions are idempotent</p>
-            <aside class="notes">
-              Idempotency is a core concept in config management. It's a big word that basically means the person using it is trying to sound clever.
-              But it also means that an operation can occur multiple times and only have an effect the first time.
-            </aside>
-        </section>
-
-        <section>
-          <p>How does this help?</p>
-          <aside class="notes">
-            Now we have the tools to deploy k8s, which is a good first step. But because chef is easy to extend, we can also wrap up everything else we mentioned in Chef, too. Let's look at that.
-          </aside>
-        </section>
-
-        <section>
-          <h3>Set up</h3>
-        </section>
         <section>
           <p>Deploying a kubernetes master with chef is a little easier</p>
           <pre><code class="ruby" data-trim contenteditable>
@@ -249,29 +184,10 @@ end
         </section>
 
         <section>
-          <p>Under the hood</p>
-          <pre><code class="ruby" data-trim contenteditable>
-docker_container "kubelet" do
-  repo kubernetes_repo
-  tag "v#{kubernetes_version}"
-  host docker_host
-  volumes ["/:/rootfs:ro", "/sys:/sys:ro", "/dev:/dev"]
-  network_mode "host"
-  privileged true
-  pid_mode "host"
-  command "/hyperkube kubelet"
-end
-          </code></pre>
-          <aside class="notes">
-            This is just a section, but it's great because we're composing resources - our k8s resource is built from docker resources, and etcd resources, and so on.
-            Let's take a look at a complete chef resource.
-          </aside>
-        </section>
-
-        <section>
           <p>Discovering services</p>
-          <pre><code class="hljs" data-trim contenteditable>
-db_ip = search(:node, "role:db_server AND chef_environment:production", {ip: [:ipaddress]})
+          <pre><code class="ruby" data-trim contenteditable>
+db_ip = search(:node, "role:db_server AND chef_environment:production",
+               filter_result: {ip: [:ipaddress]}).first["ip"]
 
 kubernetes_service "master database" do
   ip db_ip
@@ -282,9 +198,10 @@ end
             I've elided a bit of code, but essentially we're able to ask our chef server where the database is running, and then configure k8s so that applications running inside k8s can just connect to a well defined port and have done with it.
           </aside>
         </section>
+
         <section>
           <p>Secrets</p>
-          <pre><code class="hljs" data-trim contenteditable>
+          <pre><code class="ruby" data-trim contenteditable>
 vault = chef_vault_item(:credentials, "our_app_user")
 
 kubernetes_secret "our_app_user" do
@@ -295,9 +212,10 @@ end
             Our DBA can create a Chef Vault item that's encrypted to just the DB master and the Kubernetes master. The DB master can create the user with the correct password, and then the k8s master can create a secret that applications can load.
           </aside>
         </section>
+
         <section>
           <p>Deployments</p>
-          <pre><code class="hljs" data-trim contenteditable>
+          <pre><code class="ruby" data-trim contenteditable>
 kubernetes_replication_controller "our_app" do
   image "gcr.io/google_containers/update-demo"
   version "kitten"
@@ -305,7 +223,40 @@ kubernetes_replication_controller "our_app" do
 end
           </code></pre>
           <aside class="notes">
-This is the same as the YAML we showed earlier. We can make this data driven by loading from a web service, or having our CI pipeline update the chef server with a new version.
+            This is the same as the YAML we showed earlier. We can make this data driven by loading from a web service, or having our CI pipeline update the chef server with a new version.
+          </aside>
+        </section>
+
+        <section>
+          <p>Configuring your application</p>
+        </section>
+
+        <section>
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">So tired of complex, on-disk, config files. Simple key/value does the trick. Pull configs from remote source or env, then cache locally.</p>&mdash; Kelsey Hightower (@kelseyhightower) <a href="https://twitter.com/kelseyhightower/status/701094919641804800">February 20, 2016</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+          <aside class="notes">
+            Long conversation on twitter about this on the weekend. My feeling is that we might be tired of complex config, but it's not going away any time soon.
+          </aside>
+        </section>
+
+        <section>
+          <p>Run a config service, and pull config from there at startup</p>
+          <aside class="notes">
+            Now your uptime is dependent on your config service as well as your application.
+          </aside>
+        </section>
+        
+        <section>
+          <p>Add configuration at build time</p>
+          <aside>
+            now you're going to have different containers for different environments (or you've blown your PCI/SOX requirements)
+          </aside>
+        </section>
+
+        <section>
+          <p>Write config to disk and bind mount it</p>
+          <aside>
+            probably as good as it gets right now.
           </aside>
         </section>
       </div>
